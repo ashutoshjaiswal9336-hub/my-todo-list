@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f766e">
+<title>My To Do List</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#eef2f6;--cd:#fff;--tx:#17212f;--mu:#667389;--pr:#0f766e;--on:#fff;--bd:#d6dde8;--ok:#16a34a;--am:#f59e0b;--bad:#dc2626}
+[data-theme=dark]{--bg:#0e141c;--cd:#18212d;--tx:#e6ebf3;--mu:#93a0b4;--pr:#2dd4bf;--on:#06201c;--bd:#2a3646;--ok:#22c55e;--am:#fbbf24}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans Devanagari",sans-serif;background:var(--bg);color:var(--tx);line-height:1.4}
+#app{max-width:480px;margin:0 auto;min-height:100vh;padding-bottom:96px}
+button,input,textarea{font:inherit;color:inherit}
+header{display:flex;align-items:center;gap:8px;margin:12px 14px;padding:8px 10px;background:var(--cd);border:1px solid var(--bd);border-radius:16px;position:sticky;top:8px;z-index:10}
+#logo{width:44px;height:44px;border-radius:50%;object-fit:cover;background:var(--pr);flex:none}
+.brand{display:flex;flex-direction:column;gap:3px;align-items:flex-start;min-width:0}
+.brand b{font-size:1rem;white-space:nowrap}
+.sq{width:34px;height:24px;border:1.5px solid var(--bd);border-radius:6px;background:none;cursor:pointer;line-height:1;font-size:.95rem}
+.sp{flex:1}
+.pill{height:28px;padding:0 10px;border-radius:14px;border:0;background:var(--bg);color:var(--pr);font-weight:700;font-size:.72rem;cursor:pointer}
+.ic{width:34px;height:34px;border-radius:50%;border:1px solid var(--bd);background:var(--bg);cursor:pointer;font-weight:700;flex:none}
+.av{background:var(--am) center/cover no-repeat;color:#222;border:0;display:flex;align-items:center;justify-content:center;font-weight:700}
+main{padding:0 14px}
+.pg{display:none}.pg.on{display:block}
+.card{background:var(--cd);border:1px solid var(--bd);border-radius:18px;padding:14px;margin-bottom:12px}
+small,.mu{color:var(--mu)}
+h2{margin:4px 0 10px;font-size:1.15rem}h3{margin:2px 0 8px}
+.hl{display:flex;justify-content:space-between;align-items:center;gap:8px}
+#hbig{margin:2px 0;font-size:1.5rem}
+.prc{color:var(--pr);font-weight:700;font-size:.85rem;margin:0}
+.ring{width:84px;height:84px;flex:none}
+.rb{fill:none;stroke:var(--bd);stroke-width:7}
+.rf{fill:none;stroke:var(--ok);stroke-width:7;stroke-linecap:round;stroke-dasharray:213.6;transition:stroke-dashoffset .5s}
+.ring text{fill:var(--tx);font-weight:700;font-size:15px}
+input,textarea{background:var(--cd);border:1px solid var(--bd);border-radius:10px;padding:9px 11px;width:100%}
+input:focus,textarea:focus{outline:2px solid var(--pr);outline-offset:0}
+#dt{width:auto;margin-top:6px;padding:5px 8px;font-size:.8rem}
+.wk{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:10px}
+.wk button{background:var(--cd);border:1px solid var(--bd);border-radius:12px;padding:6px 0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.7rem;color:var(--mu);font-weight:700}
+.wk b{font-size:1rem;color:var(--tx)}
+.wk .on{background:var(--pr);border-color:var(--pr)}.wk .on,.wk .on b{color:var(--on)}
+.wk .td{box-shadow:inset 0 -3px 0 var(--am)}
+.btn{background:var(--pr);color:var(--on);border:0;border-radius:12px;padding:10px 14px;cursor:pointer;font-weight:700}
+.btn.g{background:none;color:var(--tx);border:1px solid var(--bd)}.btn.r{background:var(--bad);color:#fff}
+.dash{width:100%;background:none;border:1.5px dashed var(--pr);color:var(--pr);border-radius:12px;padding:9px;font-weight:700;cursor:pointer;margin-bottom:10px}
+.tk{display:grid;grid-template-columns:28px 1fr 64px;gap:6px 10px;align-items:center;background:var(--cd);border:1px solid var(--bd);border-radius:14px;padding:10px 12px;margin-bottom:8px}
+.tk input{border:0;background:transparent;padding:5px 6px}
+.tk .th{background:var(--bg);border-radius:10px;text-align:center;color:var(--pr);font-weight:700}
+.tk .tn{grid-column:2/4;font-size:.82rem;color:var(--mu);border-top:1px dashed var(--bd);border-radius:0}
+.tk.dn .tt{color:var(--mu);text-decoration:line-through}
+.tk.ro{grid-template-columns:28px 1fr auto}.tk.ro small{grid-column:2/4}
+.cb input{display:none}
+.cb span,.cbx{display:flex;width:26px;height:26px;border:2px solid var(--mu);border-radius:7px;align-items:center;justify-content:center;cursor:pointer;transition:background .2s}
+.cbx{cursor:default;color:#fff;font-weight:700}.ro.dn .cbx{background:var(--ok);border-color:var(--ok)}
+.cb svg{width:19px;height:19px;fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:30;stroke-dashoffset:30}
+.cb input:checked+span{background:var(--ok);border-color:var(--ok)}
+.cb input:checked+span svg{animation:dr .5s ease forwards}
+@keyframes dr{to{stroke-dashoffset:0}}
+.tabs{display:flex;gap:6px;justify-content:flex-end;margin-bottom:10px}
+.tabs button{border:1px solid var(--bd);background:var(--cd);border-radius:20px;padding:6px 13px;cursor:pointer;font-weight:600;font-size:.82rem}
+.tabs .on{background:var(--pr);color:var(--on);border-color:var(--pr)}
+.st{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.st .card{margin:0;padding:10px 12px}.st b{font-size:1.25rem;display:block}
+.cv{height:210px;position:relative}
+#hm{display:grid;grid-template-columns:repeat(16,1fr);grid-template-rows:repeat(7,auto);grid-auto-flow:column;gap:3px}
+#hm i{aspect-ratio:1;border-radius:3px}
+.bdg{display:inline-block;margin:6px 6px 0 0;padding:4px 10px;border-radius:12px;background:var(--bg);color:var(--mu);font-size:.78rem;font-weight:700;opacity:.6}
+.bdg.on{background:var(--am);color:#222;opacity:1}
+.ng{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.add,.nc{aspect-ratio:1;border-radius:16px;padding:12px;overflow:hidden;cursor:pointer}
+.add{border:2px dashed var(--pr);color:var(--pr);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:3rem;font-weight:700;background:none}
+.add small{font-size:.8rem;color:var(--pr)}
+.nc{color:#1f2937;display:flex;flex-direction:column;justify-content:space-between;font-weight:600;font-size:.88rem;word-break:break-word}
+.nc small{color:#4b5563;font-weight:400}
+.f{display:flex;flex-direction:column;gap:10px}
+.pc{text-align:center}
+.big{width:104px;height:104px;border-radius:50%;margin:6px auto;font-size:2.4rem;position:relative}
+.cam{position:absolute;right:-2px;bottom:-2px;width:34px;height:34px;border-radius:50%;background:var(--pr);color:var(--on);border:3px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:.95rem}
+.code{display:inline-block;border:1.5px solid var(--pr);color:var(--pr);border-radius:18px;padding:6px 16px;font-weight:700;letter-spacing:.12em;margin:8px 0}
+.row{display:flex;justify-content:space-between;align-items:center;width:100%;background:var(--cd);border:1px solid var(--bd);border-radius:14px;padding:13px 14px;margin-bottom:8px;font-weight:700;cursor:pointer;text-align:left}
+.row.r{color:var(--bad)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.chip{border:1px solid var(--bd);background:var(--cd);border-radius:14px;padding:5px 10px;cursor:pointer;font-size:.8rem}
+#bn{position:fixed;bottom:10px;left:50%;transform:translateX(-50%);width:calc(100% - 28px);max-width:452px;background:var(--cd);border:1px solid var(--bd);border-radius:20px;display:flex;padding:6px;gap:4px;z-index:10}
+#bn button{flex:1;border:0;background:none;border-radius:14px;padding:11px 0;font-weight:700;font-size:.78rem;color:var(--mu);cursor:pointer}
+#bn .on{background:var(--pr);color:var(--on)}
+#ov{position:fixed;inset:0;background:#0007;z-index:20}
+#dr{position:fixed;top:0;bottom:0;left:0;width:260px;max-width:80%;background:var(--cd);z-index:21;padding:16px 12px;overflow:auto}
+#dr .dh{display:flex;gap:10px;align-items:center;margin-bottom:12px}
+#dr .av{width:44px;height:44px;border-radius:50%;flex:none}
+#dr a{display:block;padding:11px 12px;border-radius:10px;font-weight:700;cursor:pointer}
+#dr a.hi{background:var(--pr);color:var(--on)}
+.modal{position:fixed;inset:0;background:#0009;display:flex;align-items:center;justify-content:center;z-index:30;padding:14px}
+.mb{background:var(--cd);border-radius:16px;padding:16px;width:100%;max-width:440px;display:flex;flex-direction:column;gap:10px}
+.mb textarea{height:210px;resize:vertical}
+.rw{display:flex;gap:8px;justify-content:flex-end}
+#toast{position:fixed;bottom:84px;left:50%;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:10px 16px;border-radius:10px;z-index:40;opacity:0;pointer-events:none;transition:opacity .3s;max-width:90%;text-align:center;font-size:.88rem}
+#toast.on{opacity:1}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.cb input:checked+span svg{stroke-dashoffset:0}}
+</style>
+</head>
+<body>
+<div id="app">
+<header>
+  <img id="logo" src="logo.png" alt="" onerror="this.style.opacity=0">
+  <div class="brand"><b>My To Do List</b><button class="sq" id="mb" aria-label="Menu">&#9776;</button></div>
+  <span class="sp"></span>
+  <button class="pill" id="lg2">EN | हि</button>
+  <button class="ic" id="th" aria-label="Theme">&#9790;</button>
+  <button class="ic av" id="av" aria-label="Profile">+</button>
+</header>
+<div id="ov" hidden></div>
+<aside id="dr" hidden>
+  <div class="dh"><div class="av" id="dav"></div><div><b id="dn"></b><br><small id="dc"></small></div></div>
+  <a data-p="home" data-i="today"></a><a data-p="prog" data-i="prog"></a><a data-p="notes" data-i="notes"></a>
+  <a data-p="hist" class="hi" data-i="hist"></a><a data-p="prof" data-i="drawprof"></a>
+  <a id="dl" data-i="lang"></a><a id="dth" data-i="theme"></a><a id="dbk" data-i="backup"></a>
+</aside>
+<main>
+<section id="home" class="pg">
+  <div class="card"><div class="hl"><div>
+    <small id="hdate"></small><h1 id="hbig"></h1><p class="prc" id="hs1"></p><small id="hs2"></small><br>
+    <input type="date" id="dt"></div>
+    <svg class="ring" viewBox="0 0 84 84"><circle class="rb" cx="42" cy="42" r="34"/><circle class="rf" id="rf" cx="42" cy="42" r="34" transform="rotate(-90 42 42)"/><text id="rt" x="42" y="48" text-anchor="middle"></text></svg>
+  </div></div>
+  <div class="wk" id="wk"></div>
+  <button class="dash" id="kal" data-i="kal"></button>
+  <div id="tl"></div>
+</section>
+
+<section id="prog" class="pg">
+  <div class="tabs" id="tabs"><button data-r="day" data-i="day"></button><button data-r="week" data-i="week" class="on"></button><button data-r="month" data-i="month"></button><button data-r="year" data-i="year"></button></div>
+  <div class="st" id="stc"></div>
+  <div class="card"><b data-i="comp2"></b><div class="cv"><canvas id="c1"></canvas></div></div>
+  <div class="card"><b data-i="heat"></b><div id="hm" style="margin-top:8px"></div><div id="bdg"></div></div>
+  <div class="card"><b data-i="hrs2"></b><div class="cv"><canvas id="c2"></canvas></div></div>
+</section>
+
+<section id="notes" class="pg">
+  <input id="ns" data-ph="search" style="border-radius:20px;margin-bottom:12px">
+  <div class="ng" id="ng"></div>
+</section>
+
+<section id="hist" class="pg">
+  <h2 data-i="history2"></h2>
+  <div class="card"><div style="display:flex;gap:8px"><input type="date" id="hd"><button class="btn" id="hsb" data-i="show"></button></div>
+  <small data-i="recent"></small><div class="chips" id="hc"></div></div>
+  <div id="hv"></div>
+  <div class="card"><b data-i="graph30"></b><div class="cv"><canvas id="c3"></canvas></div></div>
+</section>
+
+<section id="prof" class="pg">
+  <div id="pOut" class="f">
+    <div class="card f" id="cr">
+      <h2 data-i="create"></h2>
+      <input id="pn" data-ph="name"><input id="pm" data-ph="mobile" inputmode="numeric" maxlength="10">
+      <input id="pp" type="password" data-ph="pass"><input id="pp2" type="password" data-ph="pass2">
+      <button class="btn" id="mk" data-i="create"></button>
+    </div>
+    <div class="card f"><h2 data-i="havecode"></h2>
+      <input id="lm" data-ph="mobile" inputmode="numeric" maxlength="10"><input id="lw" type="password" data-ph="pwd">
+      <button class="btn" id="lp" data-i="login"></button>
+      <small data-i="orcode"></small>
+      <input id="lc" data-ph="codeph"><button class="btn g" id="lg" data-i="open"></button></div>
+  </div>
+  <div id="pIn" hidden>
+    <div class="pc"><div class="big av" id="bigav"><label class="cam">&#128247;<input type="file" id="pf" accept="image/*" hidden></label></div>
+      <b id="un" style="font-size:1.2rem"></b><br><small id="um"></small><br>
+      <small data-i="yourcode"></small><br><span class="code" id="uc"></span><br>
+      <button class="btn g" id="cp" data-i="copy"></button></div>
+    <div style="margin-top:14px">
+      <a class="row" data-p="hist"><span data-i="history2"></span><span>&rsaquo;</span></a>
+      <a class="row" data-p="prog"><span data-i="report"></span><span>&rsaquo;</span></a>
+      <a class="row" data-p="notes"><span data-i="nh"></span><span>&rsaquo;</span></a>
+      <a class="row" id="rl"><span data-i="lang"></span><span id="rlv"></span></a>
+      <a class="row" id="rth"><span data-i="theme"></span><span>&#9790; / &#9728;</span></a>
+      <div class="row" style="cursor:default"><span data-i="backup"></span><span><button class="btn g" id="bx">Excel (CSV)</button> <button class="btn g" id="bj">JSON</button></span></div>
+      <a class="row r" id="lo"><span data-i="logout"></span><span>&rsaquo;</span></a>
+    </div>
+  </div>
+</section>
+</main>
+<nav id="bn"><button data-p="home" data-i="today"></button><button data-p="prog" data-i="prog"></button><button data-p="notes" data-i="notes"></button><button data-p="prof" data-i="prof"></button></nav>
+</div>
+
+<div class="modal" id="md" hidden><div class="mb">
+  <textarea id="nt" data-ph="nph"></textarea>
+  <div class="rw"><button class="btn r" id="nd" data-i="del" hidden></button><button class="btn g" id="nx" data-i="close"></button><button class="btn" id="nsv" data-i="save"></button></div>
+</div></div>
+<div class="modal" id="adm" hidden><div class="mb" id="admb"></div></div>
+<div id="toast"></div>
+<script type="module">
+/* ===== STEP 1: apni Firebase config yahan paste karo ===== */
+const CFG={
+ apiKey: "AIzaSyA0hmfuX_ntQq3W5wecRAsuwuMqElnEISc",
+  authDomain: "my-todo-list-df6ab.firebaseapp.com",
+  projectId: "my-todo-list-df6ab",
+  storageBucket: "my-todo-list-df6ab.firebasestorage.app",
+  messagingSenderId: "718982415891",
+  appId: "1:718982415891:web:d9444ea039031b119961e6"
+};
+/* ========================================================= */
+const CLOUD=!CFG.apiKey.startsWith('YOUR');
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const pad=n=>String(n).padStart(2,'0'),fmt=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const today=()=>fmt(new Date()),addD=(s,n)=>{const d=new Date(s+'T00:00');d.setDate(d.getDate()+n);return fmt(d)};
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+/* ---------- Language ---------- */
+let lang=localStorage.getItem('mtd_lang')||'en';
+const TX={en:{today:'Today',prog:'Progress',notes:'Notes',prof:'Profile',hist:'History',done:'done',left:'{n} tasks left',sl:'{n}-day streak',kal:"+ Plan tomorrow's timetable",
+ph_t:"Today's target",ph_h:'Hours',ph_n:'Notes (optional)',day:'Day',week:'Week',month:'Month',year:'Year',streak:'Streak',avg:'Average',tdone:'Done',days:'days',heat:'Last 16 weeks',
+comp2:'Completion %',hrs2:'Hours: planned vs done',planned:'Planned',actual:'Done',search:'Search notes...',newnote:'New note',nph:'Write your note here...',save:'Save',del:'Delete',close:'Close',
+name:'Name',mobile:'Mobile number',pass:'Password (min 6 characters)',pass2:'Repeat password',create:'Create profile',havecode:'Already have a profile?',codeph:'Enter your code (XXXX-XXXX)',open:'Open profile',
+yourcode:'Your login code (use it on another device)',copy:'Copy',history2:'Timetable history',report:'Progress report',nh:'Notes history',lang:'Language',theme:'Dark / Light',backup:'Download backup',logout:'Logout',
+show:'Show',recent:'Recent days',graph30:'Progress - last 30 days',drawprof:'Profile & Photo',
+t_name:'Enter your name',t_mob:'Mobile number must be 10 digits',t_pass:'Password must be at least 6 characters',t_pass2:'Passwords do not match',t_made:'Profile created! Save your code.',
+t_dev:'A profile already exists on this device. Open it with the code.',t_mobex:'A profile already exists for this mobile number. Open it with the code.',t_wrong:'This code is wrong',
+t_cloud:'Cannot reach the cloud. Data is saved only on this device for now. Check Firebase settings.',t_copied:'Copied',t_ns:'Note saved',t_empty:'Note is empty',t_kal:"Tomorrow's timetable is ready",
+t_nodate:'Pick a date first',t_nf:'No timetable found for this date',t_cd:'Delete this note?',t_login:'Create a profile first',t_open:'Profile opened',t_up:'Photo saved',pwd:'Password',login:'Login',orcode:'Or use your code',t_badlogin:'Mobile number or password is wrong'},
+hi:{today:'आज',prog:'प्रगति',notes:'नोट्स',prof:'प्रोफ़ाइल',hist:'हिस्ट्री',done:'पूरे',left:'{n} काम बाकी',sl:'{n} दिन की स्ट्रीक',kal:'+ कल का टाइमटेबल अभी बनाओ',
+ph_t:'आज का लक्ष्य',ph_h:'घंटे',ph_n:'नोट (वैकल्पिक)',day:'दिन',week:'हफ़्ता',month:'महीना',year:'साल',streak:'स्ट्रीक',avg:'औसत',tdone:'पूरे',days:'दिन',heat:'पिछले 16 हफ़्ते',
+comp2:'पूरा हुआ %',hrs2:'घंटे: तय बनाम पूरे',planned:'तय',actual:'पूरे',search:'नोट खोजें...',newnote:'नया नोट',nph:'यहाँ नोट लिखो...',save:'सेव करो',del:'डिलीट',close:'बंद करो',
+name:'नाम',mobile:'मोबाइल नंबर',pass:'पासवर्ड (कम से कम 6 अक्षर)',pass2:'पासवर्ड दोबारा लिखो',create:'प्रोफ़ाइल बनाओ',havecode:'पहले से प्रोफ़ाइल है?',codeph:'अपना कोड डालो (XXXX-XXXX)',open:'प्रोफ़ाइल खोलो',
+yourcode:'आपका लॉगिन कोड (दूसरे डिवाइस पर यही डालो)',copy:'कॉपी',history2:'टाइमटेबल हिस्ट्री',report:'प्रगति रिपोर्ट',nh:'नोट्स हिस्ट्री',lang:'भाषा',theme:'डार्क / लाइट',backup:'बैकअप डाउनलोड',logout:'लॉगआउट',
+show:'दिखाओ',recent:'हाल के दिन',graph30:'प्रगति - पिछले 30 दिन',drawprof:'प्रोफ़ाइल और फोटो',
+t_name:'नाम लिखो',t_mob:'मोबाइल नंबर 10 अंक का होना चाहिए',t_pass:'पासवर्ड कम से कम 6 अक्षर का रखो',t_pass2:'दोनों पासवर्ड एक जैसे नहीं हैं',t_made:'प्रोफ़ाइल बन गई! अपना कोड सेव कर लो।',
+t_dev:'इस डिवाइस पर प्रोफ़ाइल पहले बन चुकी है। कोड से खोलो।',t_mobex:'इस मोबाइल नंबर से प्रोफ़ाइल पहले बन चुकी है। कोड डालकर खोलो।',t_wrong:'यह कोड गलत है',
+t_cloud:'क्लाउड से कनेक्ट नहीं हुआ। डेटा अभी सिर्फ इसी डिवाइस में है। Firebase सेटिंग जाँचो।',t_copied:'कॉपी हो गया',t_ns:'नोट सेव हो गया',t_empty:'नोट खाली है',t_kal:'कल का टाइमटेबल तैयार है',
+t_nodate:'पहले तारीख चुनो',t_nf:'इस तारीख का टाइमटेबल नहीं मिला',t_cd:'यह नोट डिलीट करें?',t_login:'पहले प्रोफ़ाइल बनाओ',t_open:'प्रोफ़ाइल खुल गई',t_up:'फोटो सेव हो गई',pwd:'पासवर्ड',login:'लॉगिन',orcode:'या अपने कोड से खोलो',t_badlogin:'मोबाइल नंबर या पासवर्ड गलत है'}};
+const t=(k,n)=>{let s=TX[lang][k]??TX.en[k]??k;return n==null?s:s.replace('{n}',n)};
+let tmT;const toast=m=>{const e=$('#toast');e.textContent=m;e.classList.add('on');clearTimeout(tmT);tmT=setTimeout(()=>e.classList.remove('on'),3200)};
+let failed=false;const fail=e=>{console.error(e);if(!failed){failed=true;toast(t('t_cloud'))}};
+
+/* ---------- Storage: pehle is device me, phir Firebase me sync ---------- */
+const K=p=>'mtd/'+p,lget=p=>JSON.parse(localStorage.getItem(K(p))||'null'),lset=(p,d)=>localStorage.setItem(K(p),JSON.stringify(d));
+const tmo=(pr,ms=5000)=>Promise.race([pr,new Promise((_,j)=>setTimeout(()=>j('timeout'),ms))]);
+const pends=()=>JSON.parse(localStorage.getItem('mtd/pend')||'[]');
+const addPend=p=>{const a=pends();if(!a.includes(p)){a.push(p);localStorage.setItem('mtd/pend',JSON.stringify(a))}};
+let FB=null;
+const FBp=(async()=>{
+  if(!CLOUD)return null;
+  try{
+    const u='https://www.gstatic.com/firebasejs/10.12.2/';
+    const [A,F]=await tmo(Promise.all([import(u+'firebase-app.js'),import(u+'firebase-firestore.js')]),15000);
+    const fs=F.getFirestore(A.initializeApp(CFG)),R=p=>p.split('/');
+    FB={get:async p=>{const x=await F.getDoc(F.doc(fs,...R(p)));return x.exists()?x.data():null},
+        set:(p,d)=>F.setDoc(F.doc(fs,...R(p)),d),del:p=>F.deleteDoc(F.doc(fs,...R(p))),
+        list:async p=>(await F.getDocs(F.collection(fs,...R(p)))).docs.map(x=>({id:x.id,...x.data()})),
+        touch:(p,d)=>F.setDoc(F.doc(fs,...R(p)),{...d,n:F.increment(1)},{merge:true})};
+    flush();return FB;
+  }catch(e){fail(e);return null}
+})();
+async function flush(){
+  const left=[];
+  for(const p of pends()){try{const d=lget(p);await tmo(d?FB.set(p,d):FB.del(p))}catch(e){left.push(p)}}
+  localStorage.setItem('mtd/pend',JSON.stringify(left));
+}
+function set(p,d){lset(p,d);if(!CLOUD)return;tmo(FBp,15000).then(fb=>{if(!fb)throw 'nofb';return tmo(fb.set(p,d))}).catch(e=>{fail(e);addPend(p)})}
+function del(p){localStorage.removeItem(K(p));if(!CLOUD)return;tmo(FBp,15000).then(fb=>{if(!fb)throw 'nofb';return tmo(fb.del(p))}).catch(e=>{fail(e);addPend(p)})}
+function get(p,cb){
+  const l=lget(p);
+  if(CLOUD)tmo(FBp,15000).then(fb=>fb&&tmo(fb.get(p))).then(d=>{
+    if(!d||pends().includes(p))return;
+    if(JSON.stringify(d)!==JSON.stringify(l)){lset(p,d);cb&&cb(d)}
+  }).catch(fail);
+  return l;
+}
+function llist(p){const pre=K(p)+'/';return Object.keys(localStorage).filter(k=>k.startsWith(pre)&&!k.slice(pre.length).includes('/')).map(k=>({id:k.slice(pre.length),...JSON.parse(localStorage[k])}))}
+async function pull(p){
+  if(!CLOUD)return false;
+  try{const fb=await tmo(FBp,15000);if(!fb)return false;const pe=pends();
+    (await tmo(fb.list(p),10000)).forEach(({id,...d})=>{if(!pe.includes(p+'/'+id))lset(p+'/'+id,d)});return true}
+  catch(e){fail(e);return false}
+}
+async function cloudGet(p){const fb=await tmo(FBp,15000);if(!fb)throw 'nofb';return tmo(fb.get(p),10000)}
+
+/* ---------- Profile ---------- */
+let code=localStorage.getItem('mtd_code')||'',me=null,cur='',data=null,page='home',tm=null,pnd=null;
+const P=x=>`users/${code}/${x}`;
+const sha=async s=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)))].map(b=>b.toString(16).padStart(2,'0')).join('');
+const newCode=()=>{const a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',r=crypto.getRandomValues(new Uint8Array(8));const c=[...r].map(x=>a[x%a.length]).join('');return c.slice(0,4)+'-'+c.slice(4)};
+function setAv(el){el.style.backgroundImage=me?.photo?`url(${me.photo})`:'';[...el.childNodes].forEach(n=>n.nodeType===3&&n.remove());if(!me?.photo)el.prepend(document.createTextNode(me?me.name[0].toUpperCase():'+'))}
+function loadMe(){
+  me=code?lget('users/'+code):null;if(!me)code='';
+  setAv($('#av'));setAv($('#dav'));setAv($('#bigav'));
+  $('#dn').textContent=me?.name||'';$('#dc').textContent=code;
+}
+$('#mk').onclick=async()=>{
+  const n=$('#pn').value.trim(),m=$('#pm').value.trim(),p=$('#pp').value;
+  if(localStorage.getItem('mtd_made'))return toast(t('t_dev'));
+  if(n.length<2)return toast(t('t_name'));
+  if(!/^\d{10}$/.test(m))return toast(t('t_mob'));
+  if(p.length<6)return toast(t('t_pass'));
+  if(p!==$('#pp2').value)return toast(t('t_pass2'));
+  if(CLOUD){try{if(await cloudGet('mobiles/'+m))return toast(t('t_mobex'))}catch(e){fail(e)}}
+  code=newCode();
+  set('users/'+code,{name:n,mobile:m,pass:await sha(p),created:today()});set('mobiles/'+m,{code});
+  localStorage.setItem('mtd_code',code);localStorage.setItem('mtd_made','1');
+  loadMe();toast(t('t_made'));go('prof');
+};
+$('#lg').onclick=async()=>{
+  let c=$('#lc').value.toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if(c.length!==8)return toast(t('t_wrong'));
+  c=c.slice(0,4)+'-'+c.slice(4);
+  let u=lget('users/'+c);
+  if(!u&&CLOUD){try{u=await cloudGet('users/'+c)}catch(e){return fail(e)}}
+  if(!u)return toast(t('t_wrong'));
+  lset('users/'+c,u);code=c;localStorage.setItem('mtd_code',c);loadMe();toast(t('t_open'));go('home');
+};
+$('#lo').onclick=()=>{saveNow();localStorage.removeItem('mtd_code');code='';me=null;loadMe();go('prof')};
+$('#cp').onclick=()=>{navigator.clipboard?.writeText(code);toast(t('t_copied'))};
+$('#pf').onchange=e=>{
+  const f=e.target.files[0];if(!f||!me)return;const im=new Image();
+  im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=256;const s=Math.min(im.width,im.height);
+    c.getContext('2d').drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,256,256);
+    me.photo=c.toDataURL('image/jpeg',.82);set('users/'+code,me);lset('users/'+code,me);loadMe();toast(t('t_up'))};
+  im.src=URL.createObjectURL(f);
+};
+
+/* ---------- Login with mobile + password ---------- */
+$('#lp').onclick=async()=>{
+  const m=$('#lm').value.trim(),p=$('#lw').value;
+  if(!/^\d{10}$/.test(m))return toast(t('t_mob'));
+  if(!p)return toast(t('t_pass'));
+  try{
+    let r=lget('mobiles/'+m);if(!r&&CLOUD)r=await cloudGet('mobiles/'+m);
+    let u=r&&(lget('users/'+r.code)||(CLOUD?await cloudGet('users/'+r.code):null));
+    if(!u||u.pass!==await sha(p))return toast(t('t_badlogin'));
+    lset('mobiles/'+m,r);lset('users/'+r.code,u);code=r.code;localStorage.setItem('mtd_code',code);
+    loadMe();toast(t('t_open'));go('home');
+  }catch(e){fail(e)}
+};
+
+/* ---------- Visitors / crowd ---------- */
+async function trackVisit(){
+  if(!CLOUD)return;
+  try{
+    const fb=await tmo(FBp,15000);if(!fb)return;
+    let d=localStorage.getItem('mtd_dev');
+    if(!d){d='d'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);localStorage.setItem('mtd_dev',d)}
+    await Promise.all([fb.touch('visitors/'+d,{last:Date.now()}),fb.touch('stats/total',{}),fb.touch('daily/'+today(),{})]);
+  }catch(e){console.error(e)}
+}
+async function admin(){
+  const b=$('#admb');$('#adm').hidden=false;b.textContent='Loading...';
+  b.onclick=e=>{if(e.target.id==='admx')$('#adm').hidden=true};
+  try{
+    const fb=await tmo(FBp,15000);if(!fb)throw 'Firebase config / internet check karo';
+    const [u,v,s,dl]=await Promise.all([fb.list('users'),fb.list('visitors'),fb.get('stats/total'),fb.list('daily')]);
+    dl.sort((a,c)=>a.id<c.id?1:-1);const td=dl.find(x=>x.id===today());
+    b.innerHTML=`<h3>Website stats</h3>
+<div class="card" style="margin:0">Total profiles: <b>${u.length}</b></div>
+<div class="card" style="margin:0">Unique devices / browsers: <b>${v.length}</b></div>
+<div class="card" style="margin:0">Total page opens: <b>${s?.n||0}</b> &nbsp; Aaj: <b>${td?.n||0}</b></div>
+<div class="card" style="margin:0"><small>Last 7 days</small><br>${dl.slice(0,7).map(x=>`${x.id}: <b>${x.n}</b>`).join('<br>')||'-'}</div>
+<button class="btn g" id="admx">Close</button>`;
+  }catch(e){b.innerHTML='Error: '+esc(e)+'<br><button class="btn g" id="admx">Close</button>'}
+}
+
+/* ---------- Navigation, theme, language ---------- */
+const openDr=()=>{$('#ov').hidden=false;$('#dr').hidden=false},closeDr=()=>{$('#ov').hidden=true;$('#dr').hidden=true};
+$('#mb').onclick=openDr;$('#ov').onclick=closeDr;
+document.addEventListener('click',e=>{const a=e.target.closest('[data-p]');if(a)go(a.dataset.p)});
+const setTheme=x=>{document.documentElement.dataset.theme=x;$('#th').innerHTML=x==='dark'?'&#9728;':'&#9790;';localStorage.setItem('mtd_th',x)};
+const flip=()=>{setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');go(page,true)};
+$('#th').onclick=flip;$('#rth').onclick=flip;$('#dth').onclick=()=>{flip();closeDr()};
+function applyLang(){
+  document.documentElement.lang=lang;
+  $$('[data-i]').forEach(e=>e.textContent=t(e.dataset.i));
+  $$('[data-ph]').forEach(e=>e.placeholder=t(e.dataset.ph));
+  $('#rlv').textContent=lang==='hi'?'हिन्दी':'English';
+  localStorage.setItem('mtd_lang',lang);
+}
+const swLang=()=>{lang=lang==='en'?'hi':'en';applyLang();go(page,true)};
+$('#lg2').onclick=swLang;$('#rl').onclick=swLang;$('#dl').onclick=()=>{swLang();closeDr()};
+function go(p,keep){
+  saveNow();
+  if(!me&&p!=='prof'){toast(t('t_login'));p='prof'}
+  page=p;
+  $$('.pg').forEach(e=>e.classList.toggle('on',e.id===p));
+  $$('#bn button').forEach(b=>b.classList.toggle('on',b.dataset.p===p||(p==='hist'&&b.dataset.p==='prof')));
+  closeDr();if(!keep)scrollTo(0,0);
+  if(p==='home')showDay(keep&&cur?cur:today());
+  if(p==='prog')drawProg();
+  if(p==='notes')loadNotes();
+  if(p==='hist')drawHist();
+  if(p==='prof'){$('#pOut').hidden=!!me;$('#pIn').hidden=!me;$('#cr').hidden=!!localStorage.getItem('mtd_made');
+    if(me){$('#un').textContent=me.name;$('#um').textContent='+91 '+me.mobile;$('#uc').textContent=code}}
+}
+
+/* ---------- Timetable ---------- */
+const blank=()=>({rows:Array.from({length:12},()=>({t:'',h:'',n:'',d:false}))});
+const filled=r=>r.filter(x=>x.t.trim()||x.d);
+function saveNow(){clearTimeout(tm);if(pnd){set(P('days/'+pnd.d),pnd.dd);pnd=null}}
+function showDay(d){
+  saveNow();cur=d;$('#dt').value=d;
+  data=get(P('days/'+d),c=>{if(cur===d&&!pnd){data=c;render()}})||blank();
+  render();
+}
+function hero(){
+  const f=filled(data.rows),dn=f.filter(x=>x.d).length,tot=f.length||12,p=Math.round(dn/tot*100);
+  const m=allDays(),sk=streakOf(m);
+  $('#hbig').textContent=`${dn} / ${tot} ${t('done')}`;
+  $('#hs1').textContent=sk?t('sl',sk):'';$('#hs2').textContent=t('left',Math.max(tot-dn,0));
+  $('#rf').style.strokeDashoffset=213.6*(1-dn/tot);$('#rt').textContent=p+'%';
+}
+function render(){
+  const loc=lang==='hi'?'hi-IN':'en-IN',dd=new Date(cur+'T00:00');
+  $('#hdate').textContent=(cur===today()?t('today')+' - ':'')+dd.toLocaleDateString(loc,{weekday:'short',day:'numeric',month:'short'});
+  const mon=addD(cur,-((dd.getDay()+6)%7)),L=lang==='hi'?['सो','मं','बु','गु','शु','श','र']:['M','T','W','T','F','S','S'];
+  $('#wk').innerHTML=Array.from({length:7},(_,i)=>{const d=addD(mon,i);return `<button data-d="${d}" class="${d===cur?'on':''} ${d===today()?'td':''}">${L[i]}<b>${+d.slice(8)}</b></button>`}).join('');
+  $('#tl').innerHTML=data.rows.map((r,i)=>`<div class="tk${r.d?' dn':''}" data-i="${i}"><label class="cb"><input type="checkbox" ${r.d?'checked':''}><span><svg viewBox="0 0 24 24"><path d="M4 13l5 6L20 5"/></svg></span></label>
+<input class="tt" data-k="t" placeholder="${t('ph_t')}" value="${esc(r.t)}"><input class="th" data-k="h" type="number" min="0" step="0.5" placeholder="${t('ph_h')}" value="${esc(r.h)}">
+<input class="tn" data-k="n" placeholder="${t('ph_n')}" value="${esc(r.n)}"></div>`).join('');
+  hero();
+}
+$('#tl').oninput=e=>{
+  const c=e.target.closest('.tk');if(!c)return;const r=data.rows[c.dataset.i];
+  if(e.target.type==='checkbox'){r.d=e.target.checked;c.classList.toggle('dn',r.d)}else r[e.target.dataset.k]=e.target.value;
+  pnd={d:cur,dd:data};clearTimeout(tm);tm=setTimeout(saveNow,500);hero();
+};
+$('#wk').onclick=e=>{const b=e.target.closest('[data-d]');if(b)showDay(b.dataset.d)};
+$('#dt').onchange=e=>e.target.value&&showDay(e.target.value);
+$('#kal').onclick=()=>{showDay(addD(today(),1));toast(t('t_kal'))};
+addEventListener('pagehide',saveNow);
+
+/* ---------- Progress ---------- */
+const stat=(m,d)=>{const r=filled(m[d]||[]),dn=r.filter(x=>x.d);return{p:r.length?Math.round(dn.length/r.length*100):0,tot:r.length,dn:dn.length,pl:r.reduce((a,x)=>a+(+x.h||0),0),hr:dn.reduce((a,x)=>a+(+x.h||0),0)}};
+const allDays=()=>{const m={};llist(P('days')).forEach(x=>m[x.id]=x.rows||[]);return m};
+const live=d=>d>=(me?.created||'0000')&&d<=today();
+const range=n=>Array.from({length:n},(_,i)=>addD(today(),i-n+1));
+function streakOf(m){let s=0,k=today();if(stat(m,k).p<50)k=addD(k,-1);while(live(k)&&stat(m,k).p>=50){s++;k=addD(k,-1)}return s}
+const ch={};
+function mk(id,type,labels,sets,opt={}){
+  if(!window.Chart)return;ch[id]?.destroy();
+  Chart.defaults.color=css('--mu');Chart.defaults.borderColor=css('--bd');
+  ch[id]=new Chart($('#'+id),{type,data:{labels,datasets:sets},options:{responsive:true,maintainAspectRatio:false,...opt}});
+}
+function heat(m){
+  const e=new Date();e.setDate(e.getDate()+(7-e.getDay())%7);const end=fmt(e),start=addD(end,-111);let h='';
+  for(let i=0;i<112;i++){const d=addD(start,i),s=d>today()?null:stat(m,d).p;
+    h+=`<i title="${d}" style="background:${s===null?'transparent':(!live(d)||!s)?'var(--bd)':s>=50?'var(--ok)':'var(--am)'}"></i>`}
+  $('#hm').innerHTML=h;
+}
+function drawProg(nopull){
+  const m=allDays(),r=$('#tabs .on').dataset.r;let labels=[],pct=[],hr=[],pl=[],days=[];
+  if(r==='day'){
+    const f=filled(m[today()]||[]).slice(0,12);days=[today()];
+    labels=f.map((x,i)=>x.t.trim()||('Task '+(i+1)));hr=f.map(x=>x.d?(+x.h||0):0);pl=f.map(x=>+x.h||0);
+  }else if(r==='week'||r==='month'){
+    days=range(r==='week'?7:30);labels=days.map(d=>d.slice(5));
+    pct=days.map(d=>live(d)?stat(m,d).p:null);hr=days.map(d=>stat(m,d).hr);pl=days.map(d=>stat(m,d).pl);
+  }else{
+    const n=new Date();
+    for(let i=11;i>=0;i--){
+      const d=new Date(n.getFullYear(),n.getMonth()-i,1),ym=fmt(d).slice(0,7),cnt=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();
+      const all=Array.from({length:cnt},(_,j)=>`${ym}-${pad(j+1)}`).filter(live);
+      labels.push(d.toLocaleString(lang==='hi'?'hi-IN':'en',{month:'short'}));
+      pct.push(all.length?Math.round(all.reduce((a,k)=>a+stat(m,k).p,0)/all.length):null);
+      hr.push(all.reduce((a,k)=>a+stat(m,k).hr,0));pl.push(all.reduce((a,k)=>a+stat(m,k).pl,0));days.push(...all);
+    }
+  }
+  const st=days.filter(live).map(d=>stat(m,d)),done=st.reduce((a,x)=>a+x.dn,0),tot=st.reduce((a,x)=>a+x.tot,0);
+  const avg=st.length?Math.round(st.reduce((a,x)=>a+x.p,0)/st.length):0,sk=streakOf(m);
+  $('#stc').innerHTML=[[t('streak'),sk+' '+t('days')],[t('avg'),avg+'%'],[t('tdone'),done+'/'+tot]].map(x=>`<div class="card"><small>${x[0]}</small><b>${x[1]}</b></div>`).join('');
+  if(r==='day')mk('c1','doughnut',[t('tdone'),'-'],[{data:[done,Math.max(tot-done,0)],backgroundColor:[css('--ok'),css('--bd')],borderWidth:0}]);
+  else mk('c1',r==='month'?'line':'bar',labels,[{label:t('comp2'),data:pct,backgroundColor:css('--pr'),borderColor:css('--pr'),tension:.3,spanGaps:true}],{scales:{y:{min:0,max:100}}});
+  mk('c2','bar',labels,[{label:t('planned'),data:pl,backgroundColor:css('--bd')},{label:t('actual'),data:hr,backgroundColor:css('--pr')}]);
+  heat(m);$('#bdg').innerHTML=[7,30,100].map(n=>`<span class="bdg ${sk>=n?'on':''}">&#127942; ${n} ${t('days')}</span>`).join('');
+  if(!nopull)pull(P('days')).then(ok=>ok&&page==='prog'&&drawProg(true));
+}
+$('#tabs').onclick=e=>{if(e.target.dataset.r){$$('#tabs button').forEach(b=>b.classList.toggle('on',b===e.target));drawProg(true)}};
+
+/* ---------- Notes ---------- */
+let NT=[],eid=null;const COL=['#fde68a','#bbf7d0','#bfdbfe','#fbcfe8','#ddd6fe'];
+function loadNotes(nopull){
+  NT=llist(P('notes')).sort((a,b)=>b.ts-a.ts);const q=$('#ns').value.toLowerCase();
+  $('#ng').innerHTML=`<div class="add" id="addn">+<small>${t('newnote')}</small></div>`+NT.filter(n=>n.x.toLowerCase().includes(q)).map(n=>
+    `<div class="nc" data-id="${n.id}" style="background:${COL[(parseInt(n.id.slice(1))||0)%5]}"><span>${esc(n.x.slice(0,120))}</span><small>${new Date(n.ts).toLocaleDateString()}</small></div>`).join('');
+  if(!nopull)pull(P('notes')).then(ok=>ok&&page==='notes'&&loadNotes(true));
+}
+$('#ns').oninput=()=>loadNotes(true);
+function openNote(id){eid=id;const n=NT.find(x=>x.id===id);$('#nt').value=n?n.x:'';$('#nd').hidden=!n;$('#md').hidden=false;$('#nt').focus()}
+$('#ng').onclick=e=>{if(e.target.closest('#addn'))return openNote(null);const c=e.target.closest('.nc');if(c)openNote(c.dataset.id)};
+$('#nsv').onclick=()=>{const x=$('#nt').value.trim();if(!x)return toast(t('t_empty'));set(P('notes/'+(eid||'n'+Date.now())),{x,ts:Date.now()});$('#md').hidden=true;toast(t('t_ns'));loadNotes(true)};
+$('#nd').onclick=()=>{if(confirm(t('t_cd'))){del(P('notes/'+eid));$('#md').hidden=true;loadNotes(true)}};
+$('#nx').onclick=()=>$('#md').hidden=true;
+
+/* ---------- History ---------- */
+function drawHist(nopull){
+  const m=allDays(),ks=Object.keys(m).filter(k=>stat(m,k).tot).sort().reverse().slice(0,14),days=range(30);
+  $('#hc').innerHTML=ks.map(k=>`<button class="chip" data-d="${k}">${k.slice(5)} <b>${stat(m,k).p}%</b></button>`).join('')||'<small>-</small>';
+  mk('c3','bar',days.map(d=>d.slice(5)),[{label:t('comp2'),data:days.map(d=>live(d)?stat(m,d).p:null),backgroundColor:css('--pr')}],{scales:{y:{min:0,max:100}}});
+  if(!nopull)pull(P('days')).then(ok=>ok&&page==='hist'&&drawHist(true));
+}
+async function viewDay(d){
+  const p=P('days/'+d);let x=get(p,()=>viewDay(d));
+  if(!x&&CLOUD){try{x=await cloudGet(p);if(x)lset(p,x)}catch(e){fail(e)}}
+  if(!x)return toast(t('t_nf'));
+  $('#hv').innerHTML=`<div class="card"><h3>${d}</h3>`+filled(x.rows).map(r=>`<div class="tk ro${r.d?' dn':''}"><span class="cbx">${r.d?'&#10003;':''}</span><span>${esc(r.t)}</span><b class="mu">${esc(r.h)}${r.h?'h':''}</b>${r.n?`<small>${esc(r.n)}</small>`:''}</div>`).join('')+'</div>';
+}
+$('#hsb').onclick=()=>{const d=$('#hd').value;if(!d)return toast(t('t_nodate'));viewDay(d)};
+$('#hc').onclick=e=>{const b=e.target.closest('[data-d]');if(b){$('#hd').value=b.dataset.d;viewDay(b.dataset.d)}};
+
+/* ---------- Backup ---------- */
+async function backup(kind){
+  await Promise.all([pull(P('days')),pull(P('notes'))]);
+  const days=llist(P('days')).sort((a,b)=>a.id<b.id?-1:1),nts=llist(P('notes'));let out,name;
+  if(kind==='json'){const{pass,photo,...u}=me;out=JSON.stringify({profile:u,code,days,notes:nts},null,1);name='my-todo-backup.json'}
+  else{const q=s=>'"'+String(s??'').replace(/"/g,'""')+'"';
+    out='\ufeffdate,task,hours,notes,done\n'+days.flatMap(d=>filled(d.rows).map(r=>[d.id,q(r.t),r.h,q(r.n),r.d?'yes':'no'].join(','))).join('\n');name='my-todo-backup.csv'}
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([out],{type:'text/plain;charset=utf-8'}));a.download=name;a.click();
+}
+$('#bx').onclick=()=>backup('csv');$('#bj').onclick=()=>backup('json');$('#dbk').onclick=()=>{closeDr();backup('csv')};
+
+/* ---------- Start ---------- */
+setTheme(localStorage.getItem('mtd_th')||'light');
+applyLang();loadMe();go(me?'home':'prof');
+if(location.search.includes('admin'))admin();else trackVisit();
+</script>
+</body>
+</html>
