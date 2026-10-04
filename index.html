@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0f766e">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <title>My To Do List</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
@@ -99,6 +102,13 @@ input:focus,textarea:focus{outline:2px solid var(--pr);outline-offset:0}
 .rw{display:flex;gap:8px;justify-content:flex-end}
 #toast{position:fixed;bottom:84px;left:50%;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:10px 16px;border-radius:10px;z-index:40;opacity:0;pointer-events:none;transition:opacity .3s;max-width:90%;text-align:center;font-size:.88rem}
 #toast.on{opacity:1}
+.clk{width:min(300px,78vw);display:block;margin:6px auto 10px}
+.cr{fill:none;stroke:var(--bd);stroke-width:14}
+.cf{fill:none;stroke:var(--pr);stroke-width:14;stroke-linecap:round;stroke-dasharray:816.8;stroke-dashoffset:0;transform:rotate(-90deg);transform-origin:150px 150px;transition:stroke-dashoffset .25s linear}
+.clk text{fill:var(--tx);font-size:48px;font-weight:700;font-variant-numeric:tabular-nums}
+.tset{display:flex;gap:6px;align-items:center;justify-content:center;margin:8px 0}
+.tset input{width:76px;text-align:center;font-size:1.3rem;font-weight:700}
+#bn button{padding:11px 0;font-size:.72rem}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.cb input:checked+span svg{stroke-dashoffset:0}}
 </style>
 </head>
@@ -115,7 +125,7 @@ input:focus,textarea:focus{outline:2px solid var(--pr);outline-offset:0}
 <div id="ov" hidden></div>
 <aside id="dr" hidden>
   <div class="dh"><div class="av" id="dav"></div><div><b id="dn"></b><br><small id="dc"></small></div></div>
-  <a data-p="home" data-i="today"></a><a data-p="prog" data-i="prog"></a><a data-p="notes" data-i="notes"></a>
+  <a data-p="home" data-i="today"></a><a data-p="prog" data-i="prog"></a><a data-p="notes" data-i="notes"></a><a data-p="tmr" data-i="timer"></a>
   <a data-p="hist" class="hi" data-i="hist"></a><a data-p="prof" data-i="drawprof"></a>
   <a id="dl" data-i="lang"></a><a id="dth" data-i="theme"></a><a id="dbk" data-i="backup"></a>
 </aside>
@@ -152,17 +162,33 @@ input:focus,textarea:focus{outline:2px solid var(--pr);outline-offset:0}
   <div class="card"><b data-i="graph30"></b><div class="cv"><canvas id="c3"></canvas></div></div>
 </section>
 
+<section id="tmr" class="pg">
+  <div class="tabs" id="tmodes" style="justify-content:center"><button data-m="down" class="on" data-i="countdown"></button><button data-m="up" data-i="stopw"></button></div>
+  <div class="card" style="text-align:center">
+    <svg class="clk" viewBox="0 0 300 300"><circle class="cr" cx="150" cy="150" r="130"/><g id="tticks" stroke="var(--mu)" stroke-width="3" stroke-linecap="round"></g><circle class="cf" id="tring" cx="150" cy="150" r="130"/><text id="tdisp" x="150" y="166" text-anchor="middle"></text></svg>
+    <div class="tset" id="tset"><input id="tsh" type="number" min="0" max="23" inputmode="numeric" data-ph="ph_hh"><b>:</b><input id="tsm" type="number" min="0" max="59" value="25" inputmode="numeric" data-ph="ph_mm"><b>:</b><input id="tss" type="number" min="0" max="59" inputmode="numeric" data-ph="ph_ss"></div>
+    <div class="chips" id="tpre" style="justify-content:center"><button class="chip" data-s="300">5m</button><button class="chip" data-s="900">15m</button><button class="chip" data-s="1500">25m</button><button class="chip" data-s="2700">45m</button><button class="chip" data-s="3600">60m</button></div>
+    <div class="rw" style="justify-content:center;margin-top:12px"><button class="btn" id="tgo"></button><button class="btn g" id="trs" data-i="reset"></button></div>
+  </div>
+</section>
+
 <section id="prof" class="pg">
   <div id="pOut" class="f">
     <div class="card f" id="cr">
       <h2 data-i="create"></h2>
       <input id="pn" data-ph="name"><input id="pm" data-ph="mobile" inputmode="numeric" maxlength="10">
       <input id="pp" type="password" data-ph="pass"><input id="pp2" type="password" data-ph="pass2">
+      <input id="psa" data-ph="ans"><small data-i="consent"></small>
       <button class="btn" id="mk" data-i="create"></button>
     </div>
     <div class="card f"><h2 data-i="havecode"></h2>
       <input id="lm" data-ph="mobile" inputmode="numeric" maxlength="10"><input id="lw" type="password" data-ph="pwd">
       <button class="btn" id="lp" data-i="login"></button>
+      <a id="fp" class="mu" style="cursor:pointer;text-align:center;text-decoration:underline" data-i="forgot"></a>
+      <div id="fpb" class="f" hidden>
+        <input id="fm" data-ph="mobile" inputmode="numeric" maxlength="10"><input id="fa" data-ph="ans"><input id="fn" type="password" data-ph="newpass">
+        <button class="btn" id="fr" data-i="resetans"></button><button class="btn g" id="fq" data-i="askowner"></button>
+      </div>
       <small data-i="orcode"></small>
       <input id="lc" data-ph="codeph"><button class="btn g" id="lg" data-i="open"></button></div>
   </div>
@@ -171,7 +197,8 @@ input:focus,textarea:focus{outline:2px solid var(--pr);outline-offset:0}
       <b id="un" style="font-size:1.2rem"></b><br><small id="um"></small><br>
       <small data-i="yourcode"></small><br><span class="code" id="uc"></span><br>
       <button class="btn g" id="cp" data-i="copy"></button></div>
-    <div style="margin-top:14px">
+    <div class="card f" style="margin-top:14px"><b data-i="setans"></b><input id="psa2" data-ph="ans"><button class="btn g" id="sa" data-i="save"></button></div>
+    <div>
       <a class="row" data-p="hist"><span data-i="history2"></span><span>&rsaquo;</span></a>
       <a class="row" data-p="prog"><span data-i="report"></span><span>&rsaquo;</span></a>
       <a class="row" data-p="notes"><span data-i="nh"></span><span>&rsaquo;</span></a>
@@ -183,7 +210,7 @@ input:focus,textarea:focus{outline:2px solid var(--pr);outline-offset:0}
   </div>
 </section>
 </main>
-<nav id="bn"><button data-p="home" data-i="today"></button><button data-p="prog" data-i="prog"></button><button data-p="notes" data-i="notes"></button><button data-p="prof" data-i="prof"></button></nav>
+<nav id="bn"><button data-p="home" data-i="today"></button><button data-p="prog" data-i="prog"></button><button data-p="notes" data-i="notes"></button><button data-p="tmr" data-i="timer"></button><button data-p="prof" data-i="prof"></button></nav>
 </div>
 
 <div class="modal" id="md" hidden><div class="mb">
@@ -195,7 +222,7 @@ input:focus,textarea:focus{outline:2px solid var(--pr);outline-offset:0}
 <script type="module">
 /* ===== STEP 1: apni Firebase config yahan paste karo ===== */
 const CFG={
- apiKey: "AIzaSyA0hmfuX_ntQq3W5wecRAsuwuMqElnEISc",
+  apiKey: "AIzaSyA0hmfuX_ntQq3W5wecRAsuwuMqElnEISc",
   authDomain: "my-todo-list-df6ab.firebaseapp.com",
   projectId: "my-todo-list-df6ab",
   storageBucket: "my-todo-list-df6ab.firebasestorage.app",
@@ -204,6 +231,8 @@ const CFG={
 };
 /* ========================================================= */
 const CLOUD=!CFG.apiKey.startsWith('YOUR');
+/* STEP 2: admin passcode badlo, aur apna WhatsApp number likho (users ko dikhega) */
+const ADMIN_PASS='Ashu#####',OWNER_WA='';
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const pad=n=>String(n).padStart(2,'0'),fmt=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 const today=()=>fmt(new Date()),addD=(s,n)=>{const d=new Date(s+'T00:00');d.setDate(d.getDate()+n);return fmt(d)};
@@ -221,7 +250,7 @@ show:'Show',recent:'Recent days',graph30:'Progress - last 30 days',drawprof:'Pro
 t_name:'Enter your name',t_mob:'Mobile number must be 10 digits',t_pass:'Password must be at least 6 characters',t_pass2:'Passwords do not match',t_made:'Profile created! Save your code.',
 t_dev:'A profile already exists on this device. Open it with the code.',t_mobex:'A profile already exists for this mobile number. Open it with the code.',t_wrong:'This code is wrong',
 t_cloud:'Cannot reach the cloud. Data is saved only on this device for now. Check Firebase settings.',t_copied:'Copied',t_ns:'Note saved',t_empty:'Note is empty',t_kal:"Tomorrow's timetable is ready",
-t_nodate:'Pick a date first',t_nf:'No timetable found for this date',t_cd:'Delete this note?',t_login:'Create a profile first',t_open:'Profile opened',t_up:'Photo saved',pwd:'Password',login:'Login',orcode:'Or use your code',t_badlogin:'Mobile number or password is wrong'},
+t_nodate:'Pick a date first',t_nf:'No timetable found for this date',t_cd:'Delete this note?',t_login:'Create a profile first',t_open:'Profile opened',t_up:'Photo saved',pwd:'Password',login:'Login with mobile + password',orcode:'Or use your code',t_badlogin:'Mobile number or password is wrong',forgot:'Forgot password?',resetans:'Reset with secret answer',askowner:'Ask owner to reset',ans:'Secret answer (e.g. first school name) - used to reset password',newpass:'New password (min 6)',consent:'By creating a profile you agree that your data is stored on this website\'s server.',setans:'Set / change secret answer',timer:'Timer',countdown:'Timer',stopw:'Stopwatch',start:'Start',pause:'Pause',resume:'Resume',reset:'Reset',ph_hh:'hh',ph_mm:'mm',ph_ss:'ss',t_ans:'Enter a secret answer (min 2 characters)',t_noans:'No secret answer was set for this profile. Use "Ask owner to reset".',t_badans:'Secret answer is wrong',t_resetok:'Password changed. You are logged in.',t_reqsent:'Request sent. The owner will verify and approve it.',t_saved:'Saved',t_settime:'Set a time first',t_timeup:"Time's up!"},
 hi:{today:'आज',prog:'प्रगति',notes:'नोट्स',prof:'प्रोफ़ाइल',hist:'हिस्ट्री',done:'पूरे',left:'{n} काम बाकी',sl:'{n} दिन की स्ट्रीक',kal:'+ कल का टाइमटेबल अभी बनाओ',
 ph_t:'आज का लक्ष्य',ph_h:'घंटे',ph_n:'नोट (वैकल्पिक)',day:'दिन',week:'हफ़्ता',month:'महीना',year:'साल',streak:'स्ट्रीक',avg:'औसत',tdone:'पूरे',days:'दिन',heat:'पिछले 16 हफ़्ते',
 comp2:'पूरा हुआ %',hrs2:'घंटे: तय बनाम पूरे',planned:'तय',actual:'पूरे',search:'नोट खोजें...',newnote:'नया नोट',nph:'यहाँ नोट लिखो...',save:'सेव करो',del:'डिलीट',close:'बंद करो',
@@ -231,7 +260,7 @@ show:'दिखाओ',recent:'हाल के दिन',graph30:'प्रग
 t_name:'नाम लिखो',t_mob:'मोबाइल नंबर 10 अंक का होना चाहिए',t_pass:'पासवर्ड कम से कम 6 अक्षर का रखो',t_pass2:'दोनों पासवर्ड एक जैसे नहीं हैं',t_made:'प्रोफ़ाइल बन गई! अपना कोड सेव कर लो।',
 t_dev:'इस डिवाइस पर प्रोफ़ाइल पहले बन चुकी है। कोड से खोलो।',t_mobex:'इस मोबाइल नंबर से प्रोफ़ाइल पहले बन चुकी है। कोड डालकर खोलो।',t_wrong:'यह कोड गलत है',
 t_cloud:'क्लाउड से कनेक्ट नहीं हुआ। डेटा अभी सिर्फ इसी डिवाइस में है। Firebase सेटिंग जाँचो।',t_copied:'कॉपी हो गया',t_ns:'नोट सेव हो गया',t_empty:'नोट खाली है',t_kal:'कल का टाइमटेबल तैयार है',
-t_nodate:'पहले तारीख चुनो',t_nf:'इस तारीख का टाइमटेबल नहीं मिला',t_cd:'यह नोट डिलीट करें?',t_login:'पहले प्रोफ़ाइल बनाओ',t_open:'प्रोफ़ाइल खुल गई',t_up:'फोटो सेव हो गई',pwd:'पासवर्ड',login:'लॉगिन',orcode:'या अपने कोड से खोलो',t_badlogin:'मोबाइल नंबर या पासवर्ड गलत है'}};
+t_nodate:'पहले तारीख चुनो',t_nf:'इस तारीख का टाइमटेबल नहीं मिला',t_cd:'यह नोट डिलीट करें?',t_login:'पहले प्रोफ़ाइल बनाओ',t_open:'प्रोफ़ाइल खुल गई',t_up:'फोटो सेव हो गई',pwd:'पासवर्ड',login:'मोबाइल + पासवर्ड से लॉगिन',orcode:'या अपने कोड से खोलो',t_badlogin:'मोबाइल नंबर या पासवर्ड गलत है',forgot:'पासवर्ड भूल गए?',resetans:'गुप्त उत्तर से रीसेट करो',askowner:'ओनर से रीसेट करवाओ',ans:'गुप्त उत्तर (जैसे पहले स्कूल का नाम) - पासवर्ड रीसेट के लिए',newpass:'नया पासवर्ड (कम से कम 6)',consent:'प्रोफ़ाइल बनाने पर आप मानते हैं कि आपका डेटा इस वेबसाइट के सर्वर पर सेव होगा।',setans:'गुप्त उत्तर सेट / बदलो',timer:'टाइमर',countdown:'टाइमर',stopw:'स्टॉपवॉच',start:'शुरू करो',pause:'रोको',resume:'जारी रखो',reset:'रीसेट',ph_hh:'घं',ph_mm:'मि',ph_ss:'से',t_ans:'गुप्त उत्तर लिखो (कम से कम 2 अक्षर)',t_noans:'इस प्रोफ़ाइल में गुप्त उत्तर नहीं है। "ओनर से रीसेट करवाओ" दबाओ।',t_badans:'गुप्त उत्तर गलत है',t_resetok:'पासवर्ड बदल गया। आप लॉगिन हो गए।',t_reqsent:'रिक्वेस्ट भेज दी गई। ओनर जाँचकर मंज़ूर करेगा।',t_saved:'सेव हो गया',t_settime:'पहले समय सेट करो',t_timeup:'समय पूरा हुआ!'}};
 const t=(k,n)=>{let s=TX[lang][k]??TX.en[k]??k;return n==null?s:s.replace('{n}',n)};
 let tmT;const toast=m=>{const e=$('#toast');e.textContent=m;e.classList.add('on');clearTimeout(tmT);tmT=setTimeout(()=>e.classList.remove('on'),3200)};
 let failed=false;const fail=e=>{console.error(e);if(!failed){failed=true;toast(t('t_cloud'))}};
@@ -297,9 +326,10 @@ $('#mk').onclick=async()=>{
   if(!/^\d{10}$/.test(m))return toast(t('t_mob'));
   if(p.length<6)return toast(t('t_pass'));
   if(p!==$('#pp2').value)return toast(t('t_pass2'));
+  const an=$('#psa').value.trim().toLowerCase();if(an.length<2)return toast(t('t_ans'));
   if(CLOUD){try{if(await cloudGet('mobiles/'+m))return toast(t('t_mobex'))}catch(e){fail(e)}}
   code=newCode();
-  set('users/'+code,{name:n,mobile:m,pass:await sha(p),created:today()});set('mobiles/'+m,{code});
+  set('users/'+code,{name:n,mobile:m,pass:await sha(p),ans:await sha(an),created:today()});set('mobiles/'+m,{code});
   localStorage.setItem('mtd_code',code);localStorage.setItem('mtd_made','1');
   loadMe();toast(t('t_made'));go('prof');
 };
@@ -329,11 +359,91 @@ $('#lp').onclick=async()=>{
   if(!p)return toast(t('t_pass'));
   try{
     let r=lget('mobiles/'+m);if(!r&&CLOUD)r=await cloudGet('mobiles/'+m);
-    let u=r&&(lget('users/'+r.code)||(CLOUD?await cloudGet('users/'+r.code):null));
+    let u=null;if(r){if(CLOUD){try{u=await cloudGet('users/'+r.code)}catch(e){}}if(!u)u=lget('users/'+r.code)}
     if(!u||u.pass!==await sha(p))return toast(t('t_badlogin'));
     lset('mobiles/'+m,r);lset('users/'+r.code,u);code=r.code;localStorage.setItem('mtd_code',code);
     loadMe();toast(t('t_open'));go('home');
   }catch(e){fail(e)}
+};
+
+/* ---------- Forgot password ---------- */
+const norm=a=>a.trim().toLowerCase();
+$('#fp').onclick=()=>{$('#fpb').hidden=!$('#fpb').hidden};
+async function findUser(m){
+  const r=lget('mobiles/'+m)||(CLOUD?await cloudGet('mobiles/'+m):null);if(!r)return null;
+  let u=null;if(CLOUD){try{u=await cloudGet('users/'+r.code)}catch(e){}}
+  if(!u)u=lget('users/'+r.code);return u?{r,u}:null;
+}
+$('#fr').onclick=async()=>{
+  const m=$('#fm').value.trim(),a=norm($('#fa').value),np=$('#fn').value;
+  if(!/^\d{10}$/.test(m))return toast(t('t_mob'));
+  if(np.length<6)return toast(t('t_pass'));
+  try{
+    const f=await findUser(m);if(!f)return toast(t('t_badlogin'));
+    if(!f.u.ans)return toast(t('t_noans'));
+    if(f.u.ans!==await sha(a))return toast(t('t_badans'));
+    const u={...f.u,pass:await sha(np)};set('users/'+f.r.code,u);
+    code=f.r.code;localStorage.setItem('mtd_code',code);loadMe();toast(t('t_resetok'));go('home');
+  }catch(e){fail(e)}
+};
+$('#fq').onclick=async()=>{
+  const m=$('#fm').value.trim(),np=$('#fn').value;
+  if(!/^\d{10}$/.test(m))return toast(t('t_mob'));
+  if(np.length<6)return toast(t('t_pass'));
+  try{
+    if(!CLOUD)return toast(t('t_cloud'));
+    if(!await findUser(m))return toast(t('t_badlogin'));
+    const fb=await tmo(FBp,15000);await tmo(fb.set('resets/'+m,{pass:await sha(np),ts:Date.now()}));
+    toast(t('t_reqsent')+(OWNER_WA?' WhatsApp: '+OWNER_WA:''));
+  }catch(e){fail(e)}
+};
+$('#sa').onclick=async()=>{
+  const a=norm($('#psa2').value);if(a.length<2)return toast(t('t_ans'));
+  me={...me,ans:await sha(a)};set('users/'+code,me);$('#psa2').value='';toast(t('t_saved'));
+};
+
+/* ---------- Timer / Stopwatch ---------- */
+let tmode='down',tst='idle',tt0=0,tacc=0,ttot=0,tiv=null,actx=null;
+$('#tticks').innerHTML=Array.from({length:12},(_,i)=>`<line x1="150" y1="36" x2="150" y2="${i%3?44:52}" transform="rotate(${i*30} 150 150)"/>`).join('');
+const hms=s=>{const h=Math.floor(s/3600),m=Math.floor(s%3600/60);return (h?pad(h)+':':'')+pad(m)+':'+pad(s%60)};
+const tread=()=>((+$('#tsh').value||0)*3600+(+$('#tsm').value||0)*60+(+$('#tss').value||0))*1000;
+const tel=()=>tacc+(tst==='run'?Date.now()-tt0:0);
+function tstop(){clearInterval(tiv);tiv=null}
+function beep(){
+  navigator.vibrate?.([300,150,300,150,300]);
+  try{if(!actx)return;[0,.4,.8].forEach(d=>{const o=actx.createOscillator(),g=actx.createGain();o.connect(g);g.connect(actx.destination);o.frequency.value=880;g.gain.value=.25;o.start(actx.currentTime+d);o.stop(actx.currentTime+d+.25)})}catch(e){}
+}
+function tdone(){tstop();tst='done';tacc=0;beep();toast(t('t_timeup'));tdraw()}
+function tdraw(){
+  const e=tel();let txt,fr;
+  if(tmode==='down'){
+    if(tst==='idle')ttot=tread();
+    const rem=tst==='done'?0:Math.max(0,ttot-e);
+    txt=hms(Math.ceil(rem/1000));fr=tst==='idle'?1:(ttot?rem/ttot:0);
+    if(tst==='run'&&rem<=0)return tdone();
+  }else{txt=hms(Math.floor(e/1000));fr=(e%60000)/60000}
+  $('#tdisp').textContent=txt;$('#tring').style.strokeDashoffset=816.8*(1-fr);
+  $('#tgo').textContent=t(tst==='run'?'pause':(tst==='pause'?'resume':'start'));
+}
+$('#tgo').onclick=()=>{
+  try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();actx.resume()}catch(e){}
+  if(tst==='run'){tacc=tel();tst='pause';tstop()}
+  else{
+    if(tst==='idle'||tst==='done'){tacc=0;if(tmode==='down'){ttot=tread();if(!ttot)return toast(t('t_settime'))}}
+    tt0=Date.now();tst='run';tstop();tiv=setInterval(tdraw,200);
+  }
+  tdraw();
+};
+$('#trs').onclick=()=>{tstop();tst='idle';tacc=0;tdraw()};
+$('#tmodes').onclick=e=>{
+  const b=e.target.closest('[data-m]');if(!b)return;tmode=b.dataset.m;
+  $$('#tmodes button').forEach(x=>x.classList.toggle('on',x===b));
+  $('#tset').hidden=$('#tpre').hidden=tmode!=='down';tstop();tst='idle';tacc=0;tdraw();
+};
+['#tsh','#tsm','#tss'].forEach(q=>$(q).oninput=()=>{if(tst!=='run'&&tst!=='pause'){tst='idle';tdraw()}});
+$('#tpre').onclick=e=>{
+  const b=e.target.closest('[data-s]');if(!b||tst==='run'||tst==='pause')return;const x=+b.dataset.s;
+  $('#tsh').value=Math.floor(x/3600)||'';$('#tsm').value=Math.floor(x%3600/60)||'';$('#tss').value=x%60||'';tst='idle';tacc=0;tdraw();
 };
 
 /* ---------- Visitors / crowd ---------- */
@@ -347,19 +457,42 @@ async function trackVisit(){
   }catch(e){console.error(e)}
 }
 async function admin(){
-  const b=$('#admb');$('#adm').hidden=false;b.textContent='Loading...';
-  b.onclick=e=>{if(e.target.id==='admx')$('#adm').hidden=true};
-  try{
+  if(prompt('Admin passcode')!==ADMIN_PASS)return;
+  const b=$('#admb');$('#adm').hidden=false;b.textContent='Loading...';let U=[];
+  const draw=async()=>{
     const fb=await tmo(FBp,15000);if(!fb)throw 'Firebase config / internet check karo';
-    const [u,v,s,dl]=await Promise.all([fb.list('users'),fb.list('visitors'),fb.get('stats/total'),fb.list('daily')]);
-    dl.sort((a,c)=>a.id<c.id?1:-1);const td=dl.find(x=>x.id===today());
+    const [u,v,s,dl,rq]=await Promise.all([fb.list('users'),fb.list('visitors'),fb.get('stats/total'),fb.list('daily'),fb.list('resets')]);
+    U=u;dl.sort((a,c)=>a.id<c.id?1:-1);const td=dl.find(x=>x.id===today());
     b.innerHTML=`<h3>Website stats</h3>
 <div class="card" style="margin:0">Total profiles: <b>${u.length}</b></div>
 <div class="card" style="margin:0">Unique devices / browsers: <b>${v.length}</b></div>
 <div class="card" style="margin:0">Total page opens: <b>${s?.n||0}</b> &nbsp; Aaj: <b>${td?.n||0}</b></div>
 <div class="card" style="margin:0"><small>Last 7 days</small><br>${dl.slice(0,7).map(x=>`${x.id}: <b>${x.n}</b>`).join('<br>')||'-'}</div>
-<button class="btn g" id="admx">Close</button>`;
-  }catch(e){b.innerHTML='Error: '+esc(e)+'<br><button class="btn g" id="admx">Close</button>'}
+<h3>Password reset requests (${rq.length})</h3>
+${rq.map(r=>{const us=u.find(x=>x.mobile===r.id);return `<div class="card" style="margin:0"><b>${esc(us?.name||'(no profile)')}</b> - ${esc(r.id)}<br><small>${new Date(r.ts).toLocaleString()}</small><br><button class="btn" data-a="ok" data-m="${esc(r.id)}">Approve</button> <button class="btn g" data-a="no" data-m="${esc(r.id)}">Reject</button></div>`}).join('')||'<small>None</small>'}
+<div class="rw" style="justify-content:flex-start"><button class="btn g" id="admu">Download users (CSV)</button><button class="btn g" id="admx">Close</button></div>`;
+  };
+  b.onclick=async e=>{
+    const x=e.target;
+    if(x.id==='admx')return $('#adm').hidden=true;
+    if(x.id==='admu'){
+      const q=z=>'"'+String(z??'').replace(/"/g,'""')+'"';
+      const out='\ufeffcode,name,mobile,created\n'+U.map(w=>[w.id,q(w.name),w.mobile,w.created].join(',')).join('\n');
+      const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([out],{type:'text/csv;charset=utf-8'}));a.download='users.csv';return a.click();
+    }
+    if(x.dataset.a){
+      try{
+        const fb=await tmo(FBp,15000),mo=x.dataset.m;
+        if(x.dataset.a==='ok'){
+          const us=U.find(z=>z.mobile===mo),r=(await fb.list('resets')).find(z=>z.id===mo);
+          if(!us||!r)return toast('Profile not found');
+          const {id,...d}=us;await fb.set('users/'+id,{...d,pass:r.pass});toast('Approved');
+        }
+        await fb.del('resets/'+mo);await draw();
+      }catch(er){toast(String(er))}
+    }
+  };
+  try{await draw()}catch(e){b.innerHTML='Error: '+esc(e)+'<br><button class="btn g" id="admx">Close</button>'}
 }
 
 /* ---------- Navigation, theme, language ---------- */
@@ -389,6 +522,7 @@ function go(p,keep){
   if(p==='prog')drawProg();
   if(p==='notes')loadNotes();
   if(p==='hist')drawHist();
+  if(p==='tmr')tdraw();
   if(p==='prof'){$('#pOut').hidden=!!me;$('#pIn').hidden=!me;$('#cr').hidden=!!localStorage.getItem('mtd_made');
     if(me){$('#un').textContent=me.name;$('#um').textContent='+91 '+me.mobile;$('#uc').textContent=code}}
 }
@@ -522,6 +656,7 @@ $('#bx').onclick=()=>backup('csv');$('#bj').onclick=()=>backup('json');$('#dbk')
 setTheme(localStorage.getItem('mtd_th')||'light');
 applyLang();loadMe();go(me?'home':'prof');
 if(location.search.includes('admin'))admin();else trackVisit();
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 </script>
 </body>
 </html>
